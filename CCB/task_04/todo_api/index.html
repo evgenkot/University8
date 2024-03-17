@@ -1,31 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hey!</title>
-    <style>
-        body {
-            text-align: center;
-            margin: 50px;
-            font-family: 'Arial', sans-serif;
-        }
-        .poem {
-            font-style: italic;
-            color: #333;
-        }
-    </style>
+    <title>Todo App</title>
 </head>
+
 <body>
-
-    <h1>Sonnet 18 by William Shakespeare</h1>
-
-    <div class="poem">
-        <p>I compare thee to a summer's day?</p>
-        <p>Thou art more lovely and more temperate:</p>
-        <p>Rough winds do shake the darling buds of May,</p>
-        <p>And summer's lease hath all too short a date; </p>
+    <div id="todoList">
+        <div id="listPane" style="float: left; width: 30%;">
+            <h2>Todo List</h2>
+            <button id="prevPage">Previous Page</button>
+            <input id="pageNumber" type="number" placeholder="Page Number">
+            <button id="nextPage">Next Page</button>
+            <input id="pageSize" type="number" placeholder="Page Size">
+            <ul id="todoItems"></ul>
+        </div>
+        <div id="detailsPane" style="float: right; width: 70%;">
+            <h2>Todo Details</h2>
+            <form id="todoForm">
+                <label for="title">Title:</label><br>
+                <input type="text" id="title" name="title"><br>
+                <label for="content">Content:</label><br>
+                <textarea id="content" name="content"></textarea><br>
+                <label for="completion">Completion:</label>
+                <input type="checkbox" id="completion" name="completion"><br>
+                <button type="submit" id="saveBtn">Save</button>
+                <button type="button" id="deleteBtn">Delete</button>
+                <button type="button" id="newBtn">New</button>
+            </form>
+        </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const todoItemsElement = document.getElementById('todoItems');
+            const todoForm = document.getElementById('todoForm');
+            const titleInput = document.getElementById('title');
+            const contentInput = document.getElementById('content');
+            const completionInput = document.getElementById('completion');
+            const saveBtn = document.getElementById('saveBtn');
+            const deleteBtn = document.getElementById('deleteBtn');
+            const newBtn = document.getElementById('newBtn');
+
+            const prevPage = document.getElementById('prevPage');
+            const pageNumber = document.getElementById('pageNumber');
+            const nextPage = document.getElementById('nextPage');
+            const pageSize = document.getElementById('pageSize');
+
+            let selectedTodoId = null;
+            let currentPage = 0;
+            let pageLimit = 10;
+
+            fetchTodoItems();
+
+            function fetchTodoItems() {
+                fetch(`/api/todo-list?page=${currentPage}&limit=${pageLimit}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        todoItemsElement.innerHTML = '';
+                        data.todo_item_list.forEach(todo => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = todo.title;
+                            listItem.setAttribute('data-id', todo.id); // Set data-id attribute
+                            listItem.addEventListener('click', () => {
+                                selectedTodoId = todo.id;
+                                populateForm(todo);
+                            });
+                            todoItemsElement.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching todo items:', error));
+
+            }
+
+            // Populate form with todo item details
+            function populateForm(todo) {
+                titleInput.value = todo.title;
+                contentInput.value = todo.content;
+                completionInput.checked = todo.completion;
+            }
+
+            // Save todo item
+            todoForm.addEventListener('submit', event => {
+                event.preventDefault();
+                const formData = new FormData(todoForm);
+                const todoData = {
+                    title: formData.get('title'),
+                    content: formData.get('content'),
+                    completion: formData.get('completion') === 'on',
+                };
+                const method = selectedTodoId ? 'PATCH' : 'POST';
+                let url = '/api/todo-list';
+                if (selectedTodoId) url += `/${selectedTodoId}`;
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(todoData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Todo item saved:', data);
+                        // Refresh todo list after saving
+                        fetchTodoItems();
+                    })
+                    .catch(error => console.error('Error saving todo item:', error));
+            });
+
+            // Delete todo item
+            deleteBtn.addEventListener('click', () => {
+                if (!selectedTodoId) return;
+
+                fetch(`/api/todo-list/${selectedTodoId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Todo item deleted:', data);
+                        // Refresh todo list after deleting
+                        fetchTodoItems();
+                    })
+                    .catch(error => console.error('Error deleting todo item:', error));
+            });
+
+            // Highlight selected todo item
+            todoItemsElement.addEventListener('click', event => {
+                const listItem = event.target.closest('li');
+                if (listItem) {
+                    const id = listItem.getAttribute('data-id');
+                    const selectedListItem = document.querySelector('[data-id="' + id + '"]');
+                    if (selectedListItem) {
+                        const prevSelected = document.querySelector('.selected');
+                        if (prevSelected) prevSelected.classList.remove('selected');
+                        selectedListItem.classList.add('selected');
+                    }
+                }
+            });
+
+            newBtn.addEventListener('click', () => {
+                selectedTodoId = null;
+                const todoData = {
+                    title: titleInput.value,
+                    content: contentInput.value,
+                    completion: completionInput.checked
+                };
+                fetch('/api/todo-list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(todoData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('New todo item created:', data);
+                        fetchTodoItems();
+                    })
+                    .catch(error => console.error('Error creating new todo item:', error));
+            });
+
+            nextPage.addEventListener('click', () => {
+                currentPage++;
+                fetchTodoItems();
+                pageNumber.value = currentPage;
+            });
+
+            prevPage.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    fetchTodoItems();
+                    pageNumber.value = currentPage;
+                }
+            });
+
+            pageNumber.addEventListener('input', () => {
+                currentPage = parseInt(pageNumber.value) || 0;
+                fetchTodoItems();
+            });
+
+            pageSize.addEventListener('input', () => {
+                pageLimit = parseInt(pageSize.value) || 10;
+                fetchTodoItems();
+            });
+        });
+    </script>
+
+    <style>
+        .selected {
+            background-color: #f0f0f0;
+        }
+    </style>
 </body>
+
 </html>
