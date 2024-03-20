@@ -7,8 +7,11 @@ use axum::{
 use uuid::Uuid;
 
 use crate::{
-    model::{AppState, TodoItem, TodoItemListQueryOptions, TodoItemSchemaUpdate},
-    response::{TodoItemData, TodoItemDataListResponse, TodoItemDataResponse},
+    model::{AppState, TodoItem, TodoItemDTO, TodoItemListQueryOptions, TodoItemSchemaUpdate},
+    response::{
+        TodoItemData, TodoItemDataListResponse, TodoItemDataResponse, TodoItemDataResponseSecret,
+        TodoItemDataSecret,
+    },
 };
 
 pub async fn get_health() -> impl IntoResponse {
@@ -35,11 +38,12 @@ pub async fn get_todo_items(
     let page = options.page.unwrap_or(0);
     let offset = page * limit;
 
-    let todo_item_list: Vec<TodoItem> = todo_item_list
+    let todo_item_list: Vec<TodoItemDTO> = todo_item_list
         .clone()
         .into_iter()
         .skip(offset)
         .take(limit)
+        .map(|item| item.to_dto())
         .collect();
 
     let json_response = TodoItemDataListResponse {
@@ -79,7 +83,9 @@ pub async fn post_todo_item(
 
     let json_response = TodoItemDataResponse {
         status: "success".to_string(),
-        todo_item_data: TodoItemData { todo_item },
+        todo_item_data: TodoItemData {
+            todo_item: todo_item.to_dto(),
+        },
     };
 
     Ok((StatusCode::CREATED, Json(json_response)))
@@ -99,7 +105,7 @@ pub async fn get_todo_item_path(
         let json_response = TodoItemDataResponse {
             status: "success".to_string(),
             todo_item_data: TodoItemData {
-                todo_item: todo_item.clone(),
+                todo_item: todo_item.clone().to_dto(),
             },
         };
         return Ok((StatusCode::OK, Json(json_response)));
@@ -134,6 +140,7 @@ pub async fn patch_todo_item_path(
             .to_owned()
             .unwrap_or_else(|| todo.content.to_owned());
         let completed = body.completion.unwrap_or(todo.completion.unwrap());
+        let secret = body.secret.to_owned();
         let payload = TodoItem {
             id: todo.id.to_owned(),
             title: if !title.is_empty() {
@@ -149,13 +156,14 @@ pub async fn patch_todo_item_path(
             completion: Some(completed),
             creation_time: todo.creation_time,
             update_time: Some(datetime),
+            secret: secret,
         };
         *todo = payload;
 
         let json_response = TodoItemDataResponse {
             status: "success".to_string(),
             todo_item_data: TodoItemData {
-                todo_item: todo.clone(),
+                todo_item: todo.clone().to_dto(),
             },
         };
         Ok((StatusCode::OK, Json(json_response)))
@@ -194,5 +202,32 @@ pub async fn delete_todo_item_path(
         "message": format!("Todo with ID: {} not found", id)
     });
 
+    Err((StatusCode::NOT_FOUND, Json(error_response)))
+}
+
+pub async fn get_todo_item_secret_path(
+    Path(id): Path<Uuid>,
+    State(app_state): State<AppState>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let todo_item_list = app_state.db.lock().await;
+    let id = id.to_string();
+
+    if let Some(todo_item) = todo_item_list
+        .iter()
+        .find(|todo| todo.id == Some(id.to_owned()))
+    {
+        let json_response = TodoItemDataResponseSecret {
+            status: "success".to_string(),
+            todo_item_data: TodoItemDataSecret {
+                todo_item: todo_item.clone(),
+            },
+        };
+        return Ok((StatusCode::OK, Json(json_response)));
+    }
+
+    let error_response = serde_json::json!({
+        "status": "fail",
+        "message": format!("Todo with ID: {} not found", id)
+    });
     Err((StatusCode::NOT_FOUND, Json(error_response)))
 }

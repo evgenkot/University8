@@ -5,8 +5,8 @@ use tokio::sync::Mutex;
 
 use crate::{
     handler::{
-        delete_todo_item_path, get_health, get_index, get_todo_item_path, get_todo_items,
-        patch_todo_item_path, post_todo_item,
+        delete_todo_item_path, get_health, get_index, get_todo_item_path,
+        get_todo_item_secret_path, get_todo_items, patch_todo_item_path, post_todo_item,
     },
     model::AppState,
 };
@@ -26,5 +26,6 @@ pub fn create_router() -> Router {
                 .patch(patch_todo_item_path)
                 .delete(delete_todo_item_path),
         )
+        .route("/api/todo-list/secret/:id", get(get_todo_item_secret_path))
         .with_state(app_state)
 }
