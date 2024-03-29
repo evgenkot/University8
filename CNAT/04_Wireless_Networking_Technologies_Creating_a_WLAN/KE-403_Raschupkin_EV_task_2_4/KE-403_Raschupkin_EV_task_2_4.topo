@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UNICODE" ?>
+<topo version="1.3.00.100">
+    <devices>
+        <dev id="C490066D-AE64-4120-83AB-D726E69A2D5B" name="AP2" poe="0" model="AP4050" settings=" -apMac 00-E0-FC-A0-50-50 -apSN 2102354483103F0FBB52" system_mac="00-E0-FC-A0-50-50" com_port="2005" bootmode="0" cx="528.000000" cy="414.000000" edit_left="555" edit_top="468">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="2" />
+            </slot>
+        </dev>
+        <dev id="9C82C8D5-3A14-47ab-84D2-B871F3992D35" name="AP1" poe="0" model="AP4050" settings=" -apMac 00-E0-FC-C0-60-D0 -apSN 2102354483103469D809" system_mac="00-E0-FC-C0-60-D0" com_port="2004" bootmode="0" cx="373.000000" cy="410.000000" edit_left="400" edit_top="464">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="2" />
+            </slot>
+        </dev>
+        <dev id="54A9853E-1474-4e93-8322-3A4A0B839C81" name="AC3" poe="0" model="AC6005" settings="" system_mac="00-E0-FC-92-0B-F9" com_port="2002" bootmode="0" cx="373.000000" cy="301.000000" edit_left="400" edit_top="355">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="8" />
+            </slot>
+        </dev>
+        <dev id="B8206EFC-85AB-43bc-BEA0-B81896E5E87C" name="AC4" poe="0" model="AC6005" settings="" system_mac="00-E0-FC-41-71-43" com_port="2003" bootmode="0" cx="531.000000" cy="303.000000" edit_left="558" edit_top="357">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="8" />
+            </slot>
+        </dev>
+        <dev id="9EDDAAD4-8D8A-436b-8316-F651C16CE07F" name="AC1" poe="0" model="AC6005" settings="" system_mac="00-E0-FC-27-63-4E" com_port="2000" bootmode="0" cx="445.000000" cy="159.000000" edit_left="472" edit_top="213">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="8" />
+            </slot>
+        </dev>
+        <dev id="EDD82760-AA53-4119-A200-27630C831CE3" name="AC2" poe="0" model="AC6005" settings="" system_mac="00-E0-FC-AA-67-25" com_port="2001" bootmode="0" cx="199.000000" cy="169.000000" edit_left="226" edit_top="223">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="8" />
+            </slot>
+        </dev>
+    </devices>
+    <lines>
+        <line srcDeviceID="EDD82760-AA53-4119-A200-27630C831CE3" destDeviceID="9EDDAAD4-8D8A-436b-8316-F651C16CE07F">
+            <interfacePair lineName="Copper" srcIndex="0" srcBoundRectIsMoved="0" srcBoundRect_X="269.148132" srcBoundRect_Y="194.246017" srcOffset_X="0.000000" srcOffset_Y="0.000000" tarIndex="0" tarBoundRectIsMoved="0" tarBoundRect_X="428.851868" tarBoundRect_Y="187.753983" tarOffset_X="0.000000" tarOffset_Y="0.000000" />
+        </line>
+        <line srcDeviceID="9EDDAAD4-8D8A-436b-8316-F651C16CE07F" destDeviceID="54A9853E-1474-4e93-8322-3A4A0B839C81">
+            <interfacePair lineName="Copper" srcIndex="2" srcBoundRectIsMoved="0" srcBoundRect_X="452.470947" srcBoundRect_Y="224.515625" srcOffset_X="0.000000" srcOffset_Y="0.000000" tarIndex="0" tarBoundRectIsMoved="0" tarBoundRect_X="419.529053" tarBoundRect_Y="289.484375" tarOffset_X="0.000000" tarOffset_Y="0.000000" />
+        </line>
+        <line srcDeviceID="9EDDAAD4-8D8A-436b-8316-F651C16CE07F" destDeviceID="B8206EFC-85AB-43bc-BEA0-B81896E5E87C">
+            <interfacePair lineName="Copper" srcIndex="3" srcBoundRectIsMoved="0" srcBoundRect_X="494.142090" srcBoundRect_Y="223.075134" srcOffset_X="0.000000" srcOffset_Y="0.000000" tarIndex="0" tarBoundRectIsMoved="0" tarBoundRect_X="535.857910" tarBoundRect_Y="292.924866" tarOffset_X="0.000000" tarOffset_Y="0.000000" />
+        </line>
+        <line srcDeviceID="54A9853E-1474-4e93-8322-3A4A0B839C81" destDeviceID="9C82C8D5-3A14-47ab-84D2-B871F3992D35">
+            <interfacePair lineName="Copper" srcIndex="3" srcBoundRectIsMoved="0" srcBoundRect_X="400.000000" srcBoundRect_Y="371.183777" srcOffset_X="0.000000" srcOffset_Y="0.000000" tarIndex="1" tarBoundRectIsMoved="0" tarBoundRect_X="400.000000" tarBoundRect_Y="393.816223" tarOffset_X="0.000000" tarOffset_Y="0.000000" />
+        </line>
+        <line srcDeviceID="B8206EFC-85AB-43bc-BEA0-B81896E5E87C" destDeviceID="C490066D-AE64-4120-83AB-D726E69A2D5B">
+            <interfacePair lineName="Copper" srcIndex="3" srcBoundRectIsMoved="0" srcBoundRect_X="556.833313" srcBoundRect_Y="373.167999" srcOffset_X="0.000000" srcOffset_Y="0.000000" tarIndex="1" tarBoundRectIsMoved="0" tarBoundRect_X="556.166687" tarBoundRect_Y="397.832001" tarOffset_X="0.000000" tarOffset_Y="0.000000" />
+        </line>
+    </lines>
+    <shapes />
+    <txttips />
+</topo>
